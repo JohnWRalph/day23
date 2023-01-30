@@ -1,27 +1,25 @@
-
-
 import express from "express";
-import { nextTick } from "process";
 import Message from "./message";
 import User from "./user";
 
 
 const users: User[] = [];
 const messages: Message[] = [];
+let messagesByUser: Message[] =[];
 
 var userIDIncrement: number = 0;
 var messageIDIncrement: number = 0;
 
 const app = express()
 app.use(express.json());
+
 app.get('/', function (req, res) {
   res.send('Hello World')
 })
 
 
-
+// creates new user
 app.post("/user", function (req, res) {
-
   const user: User = {
     userID: userIDIncrement,
     name: req.body.name,
@@ -34,8 +32,8 @@ app.post("/user", function (req, res) {
   res.send(user)
 })
 
-app.listen(3002);
 
+//creates a new message
 app.post("/message", function (req, res) {
   const message: Message = {
     messageID: messageIDIncrement,
@@ -49,6 +47,7 @@ app.post("/message", function (req, res) {
   res.send(message)
 })
 
+// gets user from input
 app.get("/user/:name", function (req, res) {
   //find user by name
   const user = users.find((u) => u.name === req.params.name);
@@ -61,9 +60,8 @@ app.get("/user/:name", function (req, res) {
 })
 
 
-let messagesByUser: Message[] =[];
+ //find user by name, if user exists search all messages for user, return message if message user
 app.get("/message/:name", function (req, res) {
-  //find user by name, if user exists search all messages for user, return message if message user
   const user = users.find((u) => u.name === req.params.name);
   messagesByUser=[];
   if (user) {
@@ -79,7 +77,7 @@ app.get("/message/:name", function (req, res) {
   }
 })
 
-//get the number inputted in the search bar, find the message indexed at that number, then replace the message text with a new message
+//get the number inputted in the search bar, find the message by index, then replace the message text with a new message and set message as editted
 app.put("/message/:messageID",function(req,res) {
   const index:number = parseInt(req.params.messageID)
   const oldMessage = messages[index]
@@ -87,3 +85,5 @@ app.put("/message/:messageID",function(req,res) {
   messages[index].isEditted = true;
   res.send(messages)
 })
+
+app.listen(3002);
